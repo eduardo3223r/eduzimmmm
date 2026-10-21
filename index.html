@@ -1,0 +1,267 @@
+a<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#14243A">
+<title>Alerta da Sala</title>
+<style>
+:root{--navy:#14243A;--teal:#18B6A4;--yellow:#F4B942;--bg:#F4F6FA;--blue:#4a6fa5;--red:#d64545;--muted:#6b778a;--sh:0 4px 18px rgba(20,36,58,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:90px}
+body{margin:0;background:var(--bg);color:var(--navy);font:16px/1.45 Inter,Roboto,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+#hd{background:var(--navy);color:#fff;padding:calc(16px + env(safe-area-inset-top)) 18px 20px;border-radius:0 0 26px 26px;position:sticky;top:0;z-index:20;box-shadow:0 6px 20px rgba(20,36,58,.25)}
+.in{max-width:600px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;flex:none}
+#hd h1{font-size:20px;margin:0;letter-spacing:.2px}#hd p{margin:0;color:#aebbd0;font-size:13px}
+main{max-width:600px;margin:0 auto;padding:16px 16px calc(100px + env(safe-area-inset-bottom))}
+h2{font-size:18px;margin:0 0 10px}h3{font-size:16px;margin:0}
+.card{background:#fff;border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);animation:rise .35s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;font:600 16px Inter,Roboto,sans-serif;background:var(--teal);color:#fff;cursor:pointer;transition:transform .12s,filter .15s}
+.btn:active{transform:scale(.97)}.btn:hover{filter:brightness(1.05)}
+.btn.alt{background:#fff;color:var(--navy);border:2px solid #d5dce9}
+.btn.warn{background:var(--yellow);color:var(--navy)}.btn.red{background:var(--red)}
+.btn.sm{display:inline-block;width:auto;padding:8px 12px;font-size:14px;border-radius:10px}
+.btn+.btn{margin-top:10px}
+.f{width:100%;padding:13px;border:2px solid #dde3ee;border-radius:12px;font:16px Inter,Roboto,sans-serif;margin-bottom:10px;background:#fff;color:var(--navy)}
+.f:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 4px rgba(24,182,164,.15)}
+.muted{color:var(--muted);font-size:14px;margin:0 0 12px}
+.hero{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#14243A,#1f3a5c);color:#fff;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:var(--sh)}
+.hero small{color:#aebbd0}.hero h2{margin:2px 0 0}
+.dots{display:flex;gap:8px}.dots i{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:700;background:rgba(255,255,255,.12);color:#aebbd0}
+.dots i.on{background:var(--teal);color:#fff;animation:pop .45s}
+@keyframes pop{0%{transform:scale(.4)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.list{padding:4px 8px;max-height:58vh;overflow:auto}
+.st{display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px solid #eef1f6;cursor:pointer;transition:background .15s}
+.st:last-child{border:0}.st:active{background:#f0f4fa}.st span{flex:1;font-weight:600}
+.st em{font-style:normal;font-size:13px;font-weight:700;color:var(--teal)}.st.done{opacity:.55}.st.done em{color:var(--muted)}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;flex:none}
+#sheet{position:fixed;inset:0;z-index:40;display:none}
+#sheet.on{display:block}
+.back{position:absolute;inset:0;background:rgba(10,20,34,.55);animation:fade .25s}
+@keyframes fade{from{opacity:0}}
+.panel{position:absolute;left:0;right:0;bottom:0;max-width:600px;margin:0 auto;background:#fff;border-radius:26px 26px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));animation:up .32s cubic-bezier(.2,.9,.3,1)}
+@keyframes up{from{transform:translateY(100%)}}
+.who{display:flex;align-items:center;gap:12px;margin-bottom:14px}.who h2{margin:0}
+.sl{margin-bottom:14px}.sh{display:flex;justify-content:space-between;font-weight:600;margin-bottom:6px}.sh b{font-size:22px;min-width:32px;text-align:right}
+input[type=range]{width:100%;height:30px}
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;display:none;justify-content:space-around;padding:8px 6px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(20,36,58,.1);border-radius:22px 22px 0 0}
+#nav button{flex:1;max-width:130px;border:0;background:none;font:600 12px Inter,Roboto,sans-serif;color:var(--muted);padding:6px 2px;border-radius:12px;cursor:pointer;transition:all .2s}
+#nav button span{display:block;font-size:22px;transition:transform .2s}
+#nav button.on{color:var(--navy);background:#e6f7f5}#nav button.on span{transform:translateY(-2px) scale(1.15)}
+#toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translate(-50%,-140%);z-index:60;background:var(--navy);color:#fff;padding:13px 18px;border-radius:16px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .35s cubic-bezier(.2,.9,.3,1);max-width:92vw;text-align:center}
+#toast.on{transform:translate(-50%,0)}#toast.err{background:var(--red)}#toast.ok{background:#0e8f80}
+#splash{position:fixed;inset:0;z-index:100;background:var(--navy);display:grid;place-items:center;transition:opacity .5s,visibility .5s}
+#splash.off{opacity:0;visibility:hidden}
+#splash div{text-align:center;color:#fff}#splash svg{width:92px;height:92px;animation:beat 1.1s ease-in-out infinite}
+@keyframes beat{50%{transform:scale(1.12)}}
+#splash b{display:block;font-size:26px;margin-top:12px}#splash small{color:#aebbd0}
+.mine{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eef1f6;gap:8px}.mine:last-child{border:0}
+.pill{display:inline-block;background:var(--bg);border-radius:9px;padding:3px 9px;font-size:13px;font-weight:700;margin:2px 2px 0 0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.stat{background:#fff;border-radius:20px;padding:14px;box-shadow:var(--sh);animation:rise .35s both}
+.stat b{display:block;font-size:28px}.stat span{font-size:13px;color:var(--muted)}
+.donut{display:flex;align-items:center;gap:14px}.donut svg{width:104px;height:104px;flex:none;transform:rotate(-90deg)}
+.donut circle{fill:none;stroke-width:12;stroke-linecap:round}
+.donut .fg{stroke:var(--teal);transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)}
+.bar{margin-bottom:12px}.bl{display:flex;justify-content:space-between;font-weight:600;font-size:15px;margin-bottom:4px}
+.bt{height:14px;background:#edf1f7;border-radius:8px;overflow:hidden}
+.bf{height:100%;width:0;border-radius:8px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.bs{font-size:12px;color:var(--muted);margin-top:3px}
+.win{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:14px;padding:10px 12px;margin-bottom:14px}
+.win .t{font-size:26px}.win small{color:var(--muted);display:block;font-size:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #eef1f6}.row:last-child{border:0}
+.code{font:700 17px ui-monospace,Menlo,monospace;letter-spacing:2px}
+.cf{position:fixed;top:-30px;z-index:70;font-size:24px;pointer-events:none;animation:fall 2.6s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.8}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="splash"><div>
+<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#18B6A4"/><path d="M18 22h28a4 4 0 014 4v14a4 4 0 01-4 4H32l-9 8v-8h-5a4 4 0 01-4-4V26a4 4 0 014-4z" fill="#fff"/><path d="M26 33l5 5 9-10" stroke="#F4B942" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<b>Alerta da Sala</b><small>Convivência, respeito e organização</small></div></div>
+<header id="hd"><div class="in">
+<svg class="logo" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#18B6A4"/><path d="M18 22h28a4 4 0 014 4v14a4 4 0 01-4 4H32l-9 8v-8h-5a4 4 0 01-4-4V26a4 4 0 014-4z" fill="#fff"/><path d="M26 33l5 5 9-10" stroke="#F4B942" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div><h1>Alerta da Sala</h1><p>Convivência, respeito e organização</p></div></div></header>
+<main id="app"></main>
+<nav id="nav"></nav>
+<div id="sheet"></div>
+<div id="toast"></div>
+<script>
+const API='https://kxnrwjqmcpirlcjwqnpu.supabase.co';
+const KEY='sb_publishable_kWsXo1_Vnv7dQBMUp8VXGw_RENU-LRp';
+const AREAS=[
+ {k:'barulho',f:'sb',t:'Barulho',e:'🔊',c:'#18B6A4'},
+ {k:'lixo',f:'sl',t:'Joga lixo no chão',e:'🗑️',c:'#F4B942'},
+ {k:'nada',f:'sn',t:'Não faz nada',e:'🙅',c:'#4a6fa5'}];
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const first=n=>n.split(' ')[0];
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let DEVICE=ls.get('device_id');
+if(!DEVICE){DEVICE=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'d'+Date.now()+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);ls.set('device_id',DEVICE);}
+let S={view:'boot',students:[],me:null,mine:[],tab:'painel',au:'',ap:'',adm:null};
+let toastT;
+
+function toast(m,type){const t=$('#toast');t.textContent=m;t.className='on '+(type||'');clearTimeout(toastT);toastT=setTimeout(()=>t.className='',2800);}
+async function rpc(fn,args){
+  let r;
+  try{r=await fetch(API+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(args||{})});}
+  catch(e){throw new Error('Sem conexão com a internet.');}
+  const j=await r.json().catch(()=>null);
+  if(!r.ok)throw new Error((j&&(j.message||j.hint))||'Erro '+r.status);
+  return j;
+}
+async function run(fn){try{await fn();}catch(e){toast(e.message,'err');}}
+function go(v,tab){S.view=v;if(tab)S.tab=tab;render();window.scrollTo({top:0});}
+function av(n){const p=n.split(' ');const cols=['#18B6A4','#4a6fa5','#e08e0b','#8b5cf6','#d9546b','#2f9e6b'];let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%97;
+  return `<div class="av" style="background:${cols[h%cols.length]}">${esc((p[0][0]+(p[1]?p[1][0]:'')).toUpperCase())}</div>`;}
+function confetti(){const e=['🎉','⭐','✨','💙','🟡'];for(let i=0;i<30;i++){const s=document.createElement('span');s.className='cf';s.textContent=e[i%e.length];s.style.left=Math.random()*100+'vw';s.style.animationDelay=Math.random()*.8+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),3600);}}
+
+async function loadMine(){S.mine=await rpc('my_votes',{p_device:DEVICE});}
+async function boot(){
+  const t0=Date.now();
+  try{
+    S.students=await rpc('list_students');
+    const m=await rpc('me',{p_device:DEVICE});
+    if(m.length){S.me=m[0];await loadMine();S.view='vote';}else S.view='login';
+  }catch(e){S.view='login';setTimeout(()=>toast(e.message,'err'),900);}
+  render();
+  setTimeout(()=>$('#splash').classList.add('off'),Math.max(0,1100-(Date.now()-t0)));
+}
+
+function navBtns(items,cur){return items.map(([k,i,t])=>`<button data-n="${k}" class="${k===cur?'on':''}"><span>${i}</span>${t}</button>`).join('');}
+function render(){
+  const v=S.view,par=v==='vote'||v==='mine',adm=v==='admin';
+  const nav=$('#nav');
+  nav.style.display=(par||adm)?'flex':'none';
+  nav.innerHTML=par?navBtns([['vote','🗳️','Votar'],['mine','📋','Meus votos']],v):adm?navBtns([['painel','📊','Painel'],['votos','🧾','Votos'],['alunos','👥','Alunos'],['ajustes','⚙️','Ajustes']],S.tab):'';
+  nav.querySelectorAll('button').forEach(b=>b.onclick=()=>{par?go(b.dataset.n):(S.tab=b.dataset.n,render(),window.scrollTo({top:0}));});
+  ({login:vLogin,vote:vVote,mine:vMine,adminlogin:vAdminLogin,admin:vAdmin}[v]||(()=>{$('#app').innerHTML='';}))();
+}
+
+/* ---------- PARTICIPANTE ---------- */
+function vLogin(){
+  $('#app').innerHTML=`<div class="card"><h2>Entrar como participante</h2>
+  <p class="muted">Escolha seu nome e digite o código de 6 dígitos que o administrador te passou. Depois disso, este celular fica vinculado só a você.</p>
+  <select class="f" id="who"><option value="">Selecione seu nome</option>${S.students.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select>
+  <input class="f" id="code" inputmode="numeric" maxlength="6" placeholder="Código de 6 dígitos">
+  <button class="btn" id="go">Ativar neste celular</button>
+  <button class="btn alt" id="adm">Acesso administrativo</button></div>`;
+  $('#go').onclick=()=>run(async()=>{
+    const id=+$('#who').value;if(!id)throw new Error('Escolha seu nome.');
+    await rpc('claim_device',{p_device:DEVICE,p_student:id,p_code:$('#code').value});
+    S.me=S.students.find(s=>s.id===id);await loadMine();toast('Celular ativado! Bem-vindo(a).','ok');go('vote');
+  });
+  $('#adm').onclick=()=>go('adminlogin');
+}
+function vVote(){
+  const used=S.mine.length;
+  $('#app').innerHTML=`<div class="hero"><div><small>Olá, ${esc(first(S.me.name))}</small><h2>${used>=3?'Votos concluídos':'Seus 3 votos'}</h2></div>
+  <div class="dots">${[0,1,2].map(i=>`<i class="${i<used?'on':''}">${i<used?'✓':i+1}</i>`).join('')}</div></div>
+  <p class="muted">${used>=3?'Você usou todos os seus votos. Obrigado por ajudar a turma! 🎉':`Toque em uma pessoa e dê notas de 0 a 10 em cada área. Vote um de cada vez — restam ${3-used}. O voto é definitivo e só o administrador vê os resultados.`}</p>
+  <input class="f" id="q" type="search" placeholder="Buscar aluno">
+  <div class="card list" id="list"></div>`;
+  drawList();$('#q').oninput=drawList;
+}
+function drawList(){
+  const q=($('#q').value||'').toLowerCase(),voted=new Set(S.mine.map(m=>m.target));
+  const rows=S.students.filter(s=>s.id!==S.me.id&&s.name.toLowerCase().includes(q));
+  $('#list').innerHTML=rows.map(s=>`<div class="st ${voted.has(s.id)?'done':''}" data-id="${s.id}">${av(s.name)}<span>${esc(s.name)}</span><em>${voted.has(s.id)?'✓ votado':'Votar'}</em></div>`).join('')||'<p class="muted" style="padding:12px">Nenhum aluno encontrado.</p>';
+  document.querySelectorAll('#list .st').forEach(el=>el.onclick=()=>{
+    const id=+el.dataset.id;
+    if(voted.has(id))return toast('Você já votou nesta pessoa','err');
+    if(S.mine.length>=3)return toast('Você já usou seus 3 votos','err');
+    openSheet(id);
+  });
+}
+function openSheet(id){
+  const st=S.students.find(s=>s.id===id),sh=$('#sheet');
+  sh.innerHTML=`<div class="back"></div><div class="panel"><div class="who">${av(st.name)}<div><h2>${esc(st.name)}</h2><span class="muted" style="margin:0">Voto ${S.mine.length+1} de 3 · notas de 0 a 10</span></div></div>
+  ${AREAS.map(a=>`<div class="sl"><div class="sh"><span>${a.e} ${a.t}</span><b id="v_${a.k}">5</b></div><input type="range" min="0" max="10" value="5" id="r_${a.k}" style="accent-color:${a.c}"></div>`).join('')}
+  <button class="btn" id="ok">Confirmar voto</button><button class="btn alt" id="no">Cancelar</button></div>`;
+  sh.className='on';
+  AREAS.forEach(a=>$('#r_'+a.k).oninput=e=>$('#v_'+a.k).textContent=e.target.value);
+  const close=()=>sh.className='';
+  sh.querySelector('.back').onclick=close;$('#no').onclick=close;
+  $('#ok').onclick=()=>run(async()=>{
+    $('#ok').disabled=true;
+    let n;
+    try{n=await rpc('cast_vote',{p_device:DEVICE,p_target:id,p_b:+$('#r_barulho').value,p_l:+$('#r_lixo').value,p_n:+$('#r_nada').value});}
+    catch(e){$('#ok').disabled=false;throw e;}
+    close();await loadMine();render();
+    if(n>=3){confetti();toast('Pronto! Seus 3 votos foram registrados 🎉','ok');}
+    else toast(`Voto ${n} de 3 registrado ✓ — restam ${3-n}`,'ok');
+  });
+}
+function vMine(){
+  $('#app').innerHTML=`<div class="card"><h2>Meus votos (${S.mine.length}/3)</h2>${S.mine.map(m=>`<div class="mine"><div><b>${esc(m.name)}</b><div>${AREAS.map(a=>`<span class="pill">${a.e} ${m[a.k]}</span>`).join('')}</div></div></div>`).join('')||'<p class="muted">Você ainda não votou. Vá em “Votar”.</p>'}</div>
+  <button class="btn alt" id="adm">Acesso administrativo</button>`;
+  $('#adm').onclick=()=>go('adminlogin');
+}
+
+/* ---------- ADMINISTRADOR ---------- */
+function vAdminLogin(){
+  $('#app').innerHTML=`<div class="card"><h2>Acesso administrativo</h2><p class="muted">Somente o responsável vê os resultados.</p>
+  <input class="f" id="u" placeholder="Usuário" autocomplete="username" autocapitalize="none">
+  <input class="f" id="p" type="password" placeholder="Senha" autocomplete="current-password">
+  <button class="btn" id="in">Entrar</button><button class="btn alt" id="back">Voltar</button></div>`;
+  $('#in').onclick=()=>run(async()=>{S.au=$('#u').value;S.ap=$('#p').value;await loadAdm();toast('Bem-vindo, administrador','ok');go('admin','painel');});
+  $('#back').onclick=()=>go(S.me?'vote':'login');
+}
+const cred=()=>({p_user:S.au,p_pw:S.ap});
+async function loadAdm(){
+  const [res,votes,studs]=await Promise.all([rpc('admin_results',cred()),rpc('admin_votes',cred()),rpc('admin_students',cred())]);
+  S.adm={res,votes,studs};
+}
+function chart(a){
+  const rows=S.adm.res.filter(r=>r.n>0&&r[a.f]>0).map(r=>({name:r.name,n:r.n,sum:+r[a.f],avg:r[a.f]/r.n})).sort((x,y)=>y.sum-x.sum||y.avg-x.avg).slice(0,8);
+  const medals=['🥇','🥈','🥉'];
+  if(!rows.length)return `<div class="card"><h2>${a.e} ${a.t}</h2><p class="muted">Ainda sem votos nesta área.</p></div>`;
+  const max=rows[0].sum;
+  return `<div class="card"><h2>${a.e} ${a.t}</h2>
+  <div class="win"><div class="t">🏆</div><div><small>Mais votado(a)</small><b>${esc(rows[0].name)}</b></div><div style="margin-left:auto;text-align:right"><b style="font-size:22px;color:${a.c==='#F4B942'?'#c98a00':a.c}">${rows[0].sum}</b><small>pontos</small></div></div>
+  ${rows.map((r,i)=>`<div class="bar"><div class="bl"><span>${medals[i]||'▫️'} ${esc(r.name)}</span><span>${r.sum} pts</span></div><div class="bt"><div class="bf" data-w="${Math.max(4,r.sum/max*100)}" style="background:${a.c}"></div></div><div class="bs">média ${r.avg.toFixed(1).replace('.',',')} · ${r.n} voto${r.n>1?'s':''}</div></div>`).join('')}</div>`;
+}
+function vAdmin(){
+  if(!S.adm){return;}
+  const d=S.adm,T=S.tab;let h='';
+  if(T==='painel'){
+    const voters=d.studs.filter(s=>s.used>0).length,tot=d.studs.length,pct=tot?voters/tot:0,C=2*Math.PI*42;
+    h=`<div class="card"><div class="donut"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="#edf1f7"/><circle class="fg" cx="50" cy="50" r="42" stroke-dasharray="${C}" stroke-dashoffset="${C}" data-off="${C*(1-pct)}"/></svg>
+    <div><h2 style="margin:0">${Math.round(pct*100)}% participaram</h2><p class="muted" style="margin:4px 0 0">${voters} de ${tot} alunos já votaram<br>${d.votes.length} votos no total</p></div></div></div>`
+    +AREAS.map(chart).join('')
+    +`<button class="btn alt" id="rf">↻ Atualizar agora</button>`;
+  }
+  if(T==='votos')h=`<div class="card"><h2>Todos os votos (${d.votes.length})</h2>${d.votes.map(v=>`<div class="row"><div><b>${esc(v.target)}</b><div class="muted" style="margin:0">por ${esc(v.voter)} · ${new Date(v.created_at).toLocaleString('pt-BR')}</div>${AREAS.map(a=>`<span class="pill">${a.e} ${v[a.k]}</span>`).join('')}</div><button class="btn sm alt" data-del="${v.id}">Apagar</button></div>`).join('')||'<p class="muted">Nenhum voto ainda.</p>'}</div>`;
+  if(T==='alunos')h=`<div class="card"><h2>Alunos e códigos</h2><p class="muted">Envie a cada aluno o código dele em particular. “Liberar” desvincula o celular.</p>${d.studs.map(s=>`<div class="row"><div><b>${esc(s.name)}</b><div class="muted" style="margin:0">${s.bound?'📱 vinculado':'sem celular'} · ${s.used}/3 votos</div></div><div style="text-align:right"><div class="code">${esc(s.code)}</div><a class="btn sm alt" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('Alerta da Sala — '+s.name+', seu código de acesso é '+s.code+'. Abra: '+location.href.split('#')[0])}">Enviar</a>${s.bound?` <button class="btn sm alt" data-un="${s.id}">Liberar</button>`:''}</div></div>`).join('')}</div>`;
+  if(T==='ajustes')h=`<div class="card"><h2>Dados</h2><button class="btn warn" id="csv">Exportar relatório (CSV)</button><button class="btn red" id="rv">Apagar TODOS os votos</button><button class="btn alt" id="rd">Liberar todos os celulares</button></div>
+  <div class="card"><h2>Trocar senha</h2><input class="f" id="np" type="password" placeholder="Nova senha (mínimo 6)"><button class="btn alt" id="sp">Salvar nova senha</button></div>
+  <button class="btn alt" id="out">Sair do painel</button>`;
+  $('#app').innerHTML=h;
+  setTimeout(()=>{document.querySelectorAll('.bf').forEach(b=>b.style.width=b.dataset.w+'%');const f=$('.fg');if(f)f.style.strokeDashoffset=f.dataset.off;},60);
+  const on=(s,fn)=>{const e=$(s);if(e)e.onclick=fn;};
+  const reload=async()=>{await loadAdm();render();};
+  on('#rf',()=>run(async()=>{await reload();toast('Atualizado','ok');}));
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>confirm('Apagar este voto?')&&run(async()=>{await rpc('admin_delete_vote',{...cred(),p_vote:+b.dataset.del});await reload();toast('Voto apagado','ok');}));
+  document.querySelectorAll('[data-un]').forEach(b=>b.onclick=()=>confirm('Liberar o celular deste aluno?')&&run(async()=>{await rpc('admin_unbind',{...cred(),p_student:+b.dataset.un});await reload();toast('Celular liberado','ok');}));
+  on('#rv',()=>confirm('Apagar TODOS os votos? Isso não pode ser desfeito.')&&confirm('Tem certeza absoluta? Todos os resultados serão perdidos.')&&run(async()=>{await rpc('admin_reset_votes',cred());await reload();toast('Todos os votos foram apagados','ok');}));
+  on('#rd',()=>confirm('Liberar o vínculo de todos os celulares?')&&run(async()=>{await rpc('admin_reset_devices',cred());await reload();toast('Todos os celulares liberados','ok');}));
+  on('#sp',()=>run(async()=>{const n=$('#np').value;await rpc('admin_setpw',{...cred(),p_new:n});S.ap=n;toast('Senha alterada','ok');}));
+  on('#out',()=>{S.au=S.ap='';S.adm=null;go(S.me?'vote':'login');});
+  on('#csv',csv);
+}
+function csv(){
+  const rows=[['Data','Quem votou','Aluno votado','Barulho','Lixo no chão','Não faz nada']].concat(S.adm.votes.map(v=>[new Date(v.created_at).toLocaleString('pt-BR'),v.voter,v.target,v.barulho,v.lixo,v.nada]));
+  const t='\ufeff'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='resultados-alerta-da-sala.csv';a.click();
+}
+setInterval(()=>{if(S.view==='admin'&&S.tab==='painel'&&S.ap)loadAdm().then(render).catch(()=>{});},30000);
+boot();
+</script>
+</body>
+</html>
